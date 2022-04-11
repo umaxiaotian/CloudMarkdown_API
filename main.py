@@ -1,7 +1,9 @@
 from fastapi import Depends, FastAPI
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
-from cruds.auth import get_current_user, get_current_user_with_refresh_token, create_tokens, authenticate
+from cruds.auth import *
+from cruds.article import *
+
 app = FastAPI()
 
 class Token(BaseModel):
@@ -43,4 +45,8 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 @app.get("/")
 async def say_hello():
 	return {"Hello": "World"}
+
+@app.get("/list")
+async def return_article_list(article: Article = Depends(getArticleList)):
+    return article
 

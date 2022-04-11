@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from jose import jwt
 
 from models.user import User
-from models.article import Article
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
