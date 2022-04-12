@@ -43,10 +43,10 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 @app.get("/")
-async def say_hello():
+async def say_hello(user: User = Depends(get_current_user)):
 	return {"Hello": "World"}
 
 @app.get("/list")
-async def return_article_list(article: Article = Depends(getArticleList)):
+async def return_article_list(article: Article = Depends(getArticleList),user: User = Depends(get_current_user)):
     return article
 
