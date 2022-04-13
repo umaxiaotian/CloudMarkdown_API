@@ -21,7 +21,7 @@ class User(BaseModel):
         orm_mode = True
 
 class Article(BaseModel):
-    name: str
+    title: str
 
     class Config:
         orm_mode = True
