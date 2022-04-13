@@ -4,7 +4,7 @@ db = MySQLDatabase(
     database='Cloudmarkdown',
     user='Cloudmarkdown',
     password="Cloudmarkdown",
-    host="mariadb",
+    host="192.168.11.13",
     port=3306)
 class Article(Model):
     id = AutoField(primary_key=True)

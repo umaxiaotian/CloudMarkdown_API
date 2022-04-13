@@ -2,7 +2,8 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
-
+import logging
+import sys
 from models.user import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -51,6 +52,7 @@ def get_current_user_from_token(token: str, token_type: str):
     # DBからユーザーを取得
     user = User.get_by_id(payload['user_id'])
 
+    print(str(payload['user_id']))
     # リフレッシュトークンの場合、受け取ったものとDBに保存されているものが一致するか確認
     if token_type == 'refresh_token' and user.refresh_token != token:
         print(user.refresh_token, '¥n', token)
