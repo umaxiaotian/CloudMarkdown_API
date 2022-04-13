@@ -51,8 +51,6 @@ def get_current_user_from_token(token: str, token_type: str):
 
     # DBからユーザーを取得
     user = User.get_by_id(payload['user_id'])
-
-    print(str(payload['user_id']))
     # リフレッシュトークンの場合、受け取ったものとDBに保存されているものが一致するか確認
     if token_type == 'refresh_token' and user.refresh_token != token:
         print(user.refresh_token, '¥n', token)

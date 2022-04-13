@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from cruds.auth import *
@@ -42,11 +42,10 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     """ログイン中のユーザーを取得"""
     return current_user
 
-@app.get("/")
-async def say_hello(user: User = Depends(get_current_user)):
-	return {"Hello": "World"}
-
 @app.get("/list")
-async def return_article_list(article: Article = Depends(getArticleList),user: User = Depends(get_current_user)):
+async def return_article_list(article: Article = Depends(getArticleList)):
     return article
 
+@app.get("/users/mylist")
+async def return_my_article_list(articles: User = Depends(getMyArticleList)):
+    return articles
