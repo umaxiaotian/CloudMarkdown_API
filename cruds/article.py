@@ -12,8 +12,8 @@ def getArticleList():
 
 def getMyArticleList(user_id: User = Depends(get_current_user)):
     query = Article.select().get()
-    articles = []
-    for article in query.select().where(Article.relate_user_id == user_id):
-        articles.append(article)
+    article = []
+    for user in query.select().where(Article.relate_user_id == user_id).order_by(Article.post_date.desc()):
+        article.append(user)
 
-    return articles
+    return article
