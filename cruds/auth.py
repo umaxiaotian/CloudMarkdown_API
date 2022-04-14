@@ -1,10 +1,12 @@
+from asyncio.windows_events import NULL
+from contextlib import nullcontext
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
-import logging
-import sys
+
 from models.user import User
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -43,7 +45,16 @@ def create_tokens(user_id: int):
 def get_current_user_from_token(token: str, token_type: str):
     """tokenからユーザーを取得"""
     # トークンをデコードしてペイロードを取得。有効期限と署名は自動で検証される。
-    payload = jwt.decode(token, 'SECRET_KEY123', algorithms=['HS256'])
+    try:
+        payload = jwt.decode(token, 'SECRET_KEY123', algorithms=['HS256'])
+    except jwt.ExpiredSignatureError as e:
+        # 有効期限切れ
+        raise HTTPException(status_code=401, detail='Token_Expired')
+    except jwt.InvalidTokenError as e:
+        # decodeが実行できなかった
+        raise HTTPException(status_code=401, detail='Decord_Fail_Error')
+    except Exception as e:
+        raise HTTPException(status_code=401, detail='Extract_Error')
 
     # トークンタイプが一致することを確認
     if payload['token_type'] != token_type:
@@ -51,6 +62,7 @@ def get_current_user_from_token(token: str, token_type: str):
 
     # DBからユーザーを取得
     user = User.get_by_id(payload['user_id'])
+
     # リフレッシュトークンの場合、受け取ったものとDBに保存されているものが一致するか確認
     if token_type == 'refresh_token' and user.refresh_token != token:
         print(user.refresh_token, '¥n', token)
