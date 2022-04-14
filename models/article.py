@@ -20,4 +20,4 @@ class Article(Model):
 
 db.create_tables([Article])
 # データ挿入
-Article.create(title='もえちゃん', detail='HELLO' ,relate_user_id=1, good_count=2)
+# Article.create(title='もえちゃん', detail='HELLO' ,relate_user_id=1, good_count=2)

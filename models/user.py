@@ -19,6 +19,6 @@ class User(Model):
 db.create_tables([User])
 
 # ユーザーデータ挿入
-User.create(name='tanaka', password='secret_tanaka')
-User.create(name='kobayashi', password='secret_kobayashi')
+# User.create(name='tanaka', password='secret_tanaka')
+# User.create(name='kobayashi', password='secret_kobayashi')
 

@@ -33,11 +33,14 @@ def create_tokens(user_id: int):
     }
 
     # トークン作成（本来は'SECRET_KEY123'はもっと複雑にする）
-    access_token = jwt.encode(access_payload, 'SECRET_KEY123', algorithm='HS256')
-    refresh_token = jwt.encode(refresh_payload, 'SECRET_KEY123', algorithm='HS256')
+    access_token = jwt.encode(
+        access_payload, 'SECRET_KEY123', algorithm='HS256')
+    refresh_token = jwt.encode(
+        refresh_payload, 'SECRET_KEY123', algorithm='HS256')
 
     # DBにリフレッシュトークンを保存
-    User.update(refresh_token=refresh_token).where(User.id == user_id).execute()
+    User.update(refresh_token=refresh_token).where(
+        User.id == user_id).execute()
 
     return {'access_token': access_token, 'refresh_token': refresh_token, 'token_type': 'bearer'}
 
@@ -55,7 +58,6 @@ def get_current_user_from_token(token: str, token_type: str):
         raise HTTPException(status_code=401, detail='Decord_Fail_Error')
     except Exception as e:
         raise HTTPException(status_code=401, detail='Extract_Error')
-
     # トークンタイプが一致することを確認
     if payload['token_type'] != token_type:
         raise HTTPException(status_code=401, detail=f'トークンタイプ不一致')
