@@ -13,7 +13,7 @@ class Article(Model):
     relate_user_id = TextField(null=True)
     good_count = IntegerField(default=0)
     post_date=DateTimeField(null=True)
-
+    is_publish=BooleanField(default=False)
     class Meta:
         database = db
 
