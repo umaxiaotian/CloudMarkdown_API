@@ -35,7 +35,6 @@ class Article(BaseModel):
     detail: str
     relate_user_id: str
     good_count: int
-    tags: str
     post_date: str
 
     class Config:
