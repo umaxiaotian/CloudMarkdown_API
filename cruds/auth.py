@@ -72,6 +72,9 @@ def get_current_user_from_token(token: str, token_type: str):
 
     return user
 
+def delete_token(user_id: int):
+    # print(user_id)
+    User.update(refresh_token=None).where(User.id == user_id).execute()
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """アクセストークンからログイン中のユーザーを取得"""

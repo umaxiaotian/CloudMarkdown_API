@@ -43,6 +43,7 @@ class Article(BaseModel):
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """トークン発行"""
+    print(form.username)
     user = authenticate(form.username, form.password)
     return create_tokens(user.id)
 
@@ -56,6 +57,12 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     """ログイン中のユーザーを取得"""
     return current_user
 
+@app.put("/user/logout/")
+async def delete(user_id: User = Depends(get_current_user)):
+    # print(user_id)
+    delete_token(user_id)
+    return {"detail": "Success"}
+
 @app.get("/article/list/")
 async def return_article_list(article: Article = Depends(getArticleList)):
     return article
@@ -64,6 +71,6 @@ async def return_article_list(article: Article = Depends(getArticleList)):
 async def return_article_detail(article: Article = Depends(getArticleDetail)):
     return article
 
-@app.get("/users/mylist")
-async def return_my_article_list(articles: User = Depends(getMyArticleList)):
+@app.get("/user/article/list")
+async def return_my_article_list(articles: Article = Depends(getMyArticleList)):
     return articles
