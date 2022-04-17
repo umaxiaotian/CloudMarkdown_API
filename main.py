@@ -67,6 +67,16 @@ async def delete(user_id: User = Depends(get_current_user)):
 async def return_article_list(article: Article = Depends(getArticleList)):
     return article
 
+# 検索機能
+@app.get("/article/search/{search_text}")
+async def search_article_list(article: Article = Depends(searchArticleList)):
+    return article
+
+@app.get("/article/tags/list")
+async def getTagList(tags: Article = Depends(getTagList)):
+    return tags
+
+
 @app.get("/article/{article_id}")
 async def return_article_detail(article: Article = Depends(getArticleDetail)):
     return article

@@ -1,4 +1,6 @@
 import array
+from peewee import *
+from peewee import fn
 from ast import dump
 from multiprocessing.dummy import Array
 from pickle import TRUE
@@ -10,6 +12,8 @@ from models.relate_tags import Relate_Tags
 from cruds.auth import *
 
 # 一般ユーザー　記事リスト取得
+
+
 def getArticleList():
     # 記事情報を取得
     query = Article.select().get()
@@ -21,10 +25,12 @@ def getArticleList():
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).name
         articles.append(
-            {"id":article.id,"relate_user_id": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
+            {"id": article.id, "relate_user_id": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
     return articles
 
 # 一般ユーザー　記事内容取得
+
+
 def getArticleDetail(article_id: int):
     article = Article.select().where(Article.is_publish == TRUE,
                                      Article.id == article_id).get()
@@ -33,8 +39,30 @@ def getArticleDetail(article_id: int):
     # 関連するタグを取得
     for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
         tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
-    return {"id":article.id,"relate_user_id": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "post_date": article.post_date}
+    return {"id": article.id, "relate_user_id": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "post_date": article.post_date}
 
+
+def searchArticleList(search_text: str):
+    # 検索記事内容を取得
+    articles = []
+    for article in Article.select().where(Article.is_publish == TRUE, Article.title.contains(search_text)).order_by(Article.good_count.desc()):
+        tags = []
+        # 関連するタグを取得
+        for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
+            tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
+        relate_user_name = User.get(article.relate_user_id).name
+        articles.append(
+            {"id": article.id, "relate_user_id": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
+    return articles
+
+# タグリスト一覧を取得する
+def getTagList():
+    relate_tags = []
+    for tag in Relate_Tags.select(Tags,fn.Count(Relate_Tags.tag_id)).join(Tags).group_by(Tags).where(Relate_Tags.tag_id == Tags.id).order_by(fn.Count(Relate_Tags.tag_id).desc()):
+        relate_tags.append(
+             {"id": tag.tag_id.id, "tag_name": tag.tag_id.tag_name, "post_count": tag.count})
+    
+    return relate_tags
 
 # 会員ページ＿自身の記事リスト
 def getMyArticleList(user_id: User = Depends(get_current_user)):
@@ -47,6 +75,6 @@ def getMyArticleList(user_id: User = Depends(get_current_user)):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).name
         articles.append(
-            {"id":article.id,"relate_user": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "post_date": article.post_date})
+            {"id": article.id, "relate_user": article.relate_user_id, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "post_date": article.post_date})
 
     return articles
