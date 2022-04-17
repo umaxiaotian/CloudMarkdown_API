@@ -58,6 +58,8 @@ def get_current_user_from_token(token: str, token_type: str):
         raise HTTPException(status_code=401, detail='Decord_Fail_Error')
     except Exception as e:
         raise HTTPException(status_code=401, detail='Extract_Error')
+
+        
     # トークンタイプが一致することを確認
     if payload['token_type'] != token_type:
         raise HTTPException(status_code=401, detail=f'トークンタイプ不一致')

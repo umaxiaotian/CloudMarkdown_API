@@ -52,7 +52,7 @@ async def refresh_token(current_user: User = Depends(get_current_user_with_refre
     """リフレッシュトークンでトークンを再取得"""
     return create_tokens(current_user.id)
 
-@app.get("/users/me/", response_model=User)
+@app.get("/user/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     """ログイン中のユーザーを取得"""
     return current_user
