@@ -11,9 +11,11 @@ db = PostgresqlDatabase(
 class User(Model):
     id = AutoField(primary_key=True)
     name = CharField(100)
+    nickname = CharField(100)
+    email = CharField(100)
     password = CharField(100)
     refresh_token = TextField(null=True)
-
+    avater = CharField(null=True)
     class Meta:
         database = db
 

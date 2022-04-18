@@ -1,3 +1,4 @@
+from cgitb import text
 from fastapi import Depends, FastAPI, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_methods=["*"],      # 追記により追加
     allow_headers=["*"]       # 追記により追加
 )
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str
@@ -25,6 +27,9 @@ class Token(BaseModel):
 
 class User(BaseModel):
     name: str
+    email: str
+    nickname: str
+    avater: str = None
 
     class Config:
         orm_mode = True
@@ -40,6 +45,7 @@ class Article(BaseModel):
     class Config:
         orm_mode = True
 
+
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """トークン発行"""
@@ -47,21 +53,25 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
     user = authenticate(form.username, form.password)
     return create_tokens(user.id)
 
+
 @app.get("/refresh_token/", response_model=Token)
 async def refresh_token(current_user: User = Depends(get_current_user_with_refresh_token)):
     """リフレッシュトークンでトークンを再取得"""
     return create_tokens(current_user.id)
 
+
 @app.get("/user/me/", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_user)):
+async def read_users_me(user: User = Depends(get_current_user)):
     """ログイン中のユーザーを取得"""
-    return current_user
+    return user
+
 
 @app.put("/user/logout/")
 async def delete(user_id: User = Depends(get_current_user)):
     # print(user_id)
     delete_token(user_id)
     return {"detail": "Success"}
+
 
 @app.get("/article/list/")
 async def return_article_list(article: Article = Depends(getArticleList)):
@@ -72,14 +82,25 @@ async def return_article_list(article: Article = Depends(getArticleList)):
 async def search_article_list(article: Article = Depends(searchArticleList)):
     return article
 
+# タグリスト（使用頻度が多い順）
+
+
 @app.get("/article/tags/list")
 async def getTagList(tags: Article = Depends(getTagList)):
     return tags
+
+# タグに関連する記事一覧を取得する
+
+
+@app.get("/article/tag/{tag_id}")
+async def getTagList(article_list: Article = Depends(getRelateTagArticleList)):
+    return article_list
 
 
 @app.get("/article/{article_id}")
 async def return_article_detail(article: Article = Depends(getArticleDetail)):
     return article
+
 
 @app.get("/user/article/list")
 async def return_my_article_list(articles: Article = Depends(getMyArticleList)):

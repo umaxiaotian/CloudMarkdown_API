@@ -11,6 +11,7 @@ db = PostgresqlDatabase(
 class Tags(Model):
     id = AutoField(primary_key=True)
     tag_name = CharField(500)
+    img = CharField(null=True)
     class Meta:
         database = db
 

@@ -16,6 +16,7 @@ class Article(Model):
     good_count = IntegerField(default=0)
     post_date=DateTimeField(null=True)
     is_publish=BooleanField(default=False)
+    img = CharField(null=True)
     class Meta:
         database = db
 
