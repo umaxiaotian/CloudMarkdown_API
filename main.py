@@ -83,18 +83,19 @@ async def search_article_list(article: Article = Depends(searchArticleList)):
     return article
 
 # タグリスト（使用頻度が多い順）
-
-
 @app.get("/article/tags/list")
 async def getTagList(tags: Article = Depends(getTagList)):
     return tags
 
 # タグに関連する記事一覧を取得する
-
-
 @app.get("/article/tag/{tag_id}")
 async def getTagList(article_list: Article = Depends(getRelateTagArticleList)):
     return article_list
+
+# タグidからタグ名を取得
+@app.get("/tag/name/{tag_id}")
+async def getTagList(tag_name: Article = Depends(getTagName)):
+    return tag_name
 
 
 @app.get("/article/{article_id}")

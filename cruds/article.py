@@ -81,6 +81,11 @@ def getRelateTagArticleList(tag_id: int):
                         "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
     return articles
 
+# タグIDからタグ名などを取得
+def getTagName(tag_id: int):
+    tag = Tags.get(tag_id)
+    return {"id": tag.id, "tag_name": tag.tag_name, "img": tag.img}
+
 # 会員ページ＿自身の記事リスト
 
 
