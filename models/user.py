@@ -15,6 +15,7 @@ class User(Model):
     email = CharField(100)
     password = CharField(100)
     refresh_token = TextField(null=True)
+    is_admin=BooleanField(default=False)
     avater = CharField(null=True)
     class Meta:
         database = db

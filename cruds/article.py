@@ -70,7 +70,6 @@ def getTagList():
 
 
 def getRelateTagArticleList(tag_id: int):
-    print(tag_id)
     articles = []
     for article in Article.select().join(Relate_Tags).where(Relate_Tags.article_id == Article.id, Relate_Tags.tag_id == tag_id):
         tags = []
