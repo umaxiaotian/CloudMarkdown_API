@@ -8,18 +8,15 @@ db = PostgresqlDatabase(
     autocommit=True, 
     autorollback=True)
 
-class Article(Model):
+class Notice(Model):
     id = AutoField(primary_key=True)
+    relate_user_id = IntegerField(null=True)
     title = CharField(500)
     detail = TextField(null=True)
-    relate_user_id = IntegerField(null=True)
-    good_count = IntegerField(default=0)
     post_date=DateTimeField(null=True)
-    is_publish=BooleanField(default=False)
-    img = CharField(null=True)
     class Meta:
         database = db
 
-db.create_tables([Article])
+db.create_tables([Notice])
 # データ挿入
-# Article.create(title='もえちゃん', detail='HELLO' ,relate_user_id=1, good_count=2)
+# Notice.create(tag_name='テストタグ')

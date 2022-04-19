@@ -86,6 +86,30 @@ def getTagName(tag_id: int):
     tag = Tags.get(tag_id)
     return {"id": tag.id, "tag_name": tag.tag_name, "img": tag.img}
 
+# タグIDからタグ名などを取得
+def getMemberUser(user_id: int):
+    user = User.get(user_id)
+    return {"id": user.id, "nickname": user.nickname, "avater": user.avater}
+
+
+def getUserArticle(user_id: int):
+    query = Article.select().get()
+    articles = []
+    for article in query.select().where(Article.relate_user_id == user_id).order_by(Article.post_date.desc()):
+        tags = []
+        # 関連するタグを取得
+        for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
+            tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
+        relate_user_name = User.get(article.relate_user_id).nickname
+        articles.append(
+            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title,  "good_count": article.good_count, "post_date": article.post_date})
+
+    return articles
+
+
+
+
+
 # 会員ページ＿自身の記事リスト
 
 

@@ -1,10 +1,12 @@
 from cgitb import text
+from getpass import getuser
 from fastapi import Depends, FastAPI, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from cruds.auth import *
 from cruds.article import *
+from cruds.notice import *
 
 app = FastAPI()
 
@@ -45,7 +47,15 @@ class Article(BaseModel):
     class Config:
         orm_mode = True
 
+class Notice(BaseModel):
+    id: int
+    relate_user: int = None
+    title: str
+    detail: str
+    post_date: str
 
+    class Config:
+        orm_mode = True
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """トークン発行"""
@@ -65,14 +75,23 @@ async def read_users_me(user: User = Depends(get_current_user)):
     """ログイン中のユーザーを取得"""
     return user
 
-
 @app.put("/user/logout/")
 async def delete(user_id: User = Depends(get_current_user)):
     # print(user_id)
     delete_token(user_id)
     return {"detail": "Success"}
 
+#ユーザーの記事リスト
+@app.get("/user/article/list")
+async def return_my_article_list(articles: Article = Depends(getMyArticleList)):
+    return articles
 
+#お知らせ
+@app.get("/notice/list/")
+async def return_article_list(article: Notice = Depends(getNotice)):
+    return article
+
+#記事リスト
 @app.get("/article/list/")
 async def return_article_list(article: Article = Depends(getArticleList)):
     return article
@@ -97,12 +116,17 @@ async def getTagList(article_list: Article = Depends(getRelateTagArticleList)):
 async def getTagList(tag_name: Article = Depends(getTagName)):
     return tag_name
 
+@app.get("/member/user/{user_id}")
+async def getTagList(user: Article = Depends(getMemberUser)):
+    return user
+
 
 @app.get("/article/{article_id}")
 async def return_article_detail(article: Article = Depends(getArticleDetail)):
     return article
 
+@app.get("/article/user/{user_id}")
+async def return_article_detail(article: Article = Depends(getUserArticle)):
+    return article
 
-@app.get("/user/article/list")
-async def return_my_article_list(articles: Article = Depends(getMyArticleList)):
-    return articles
+

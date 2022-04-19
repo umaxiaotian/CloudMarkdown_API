@@ -23,12 +23,12 @@ def create_tokens(user_id: int):
     # ペイロード作成
     access_payload = {
         'token_type': 'access_token',
-        'exp': datetime.utcnow() + timedelta(minutes=60),
+        'exp': datetime.utcnow() + timedelta(minutes=180),
         'user_id': user_id,
     }
     refresh_payload = {
         'token_type': 'refresh_token',
-        'exp': datetime.utcnow() + timedelta(days=90),
+        'exp': datetime.utcnow() + timedelta(days=1),
         'user_id': user_id,
     }
 
