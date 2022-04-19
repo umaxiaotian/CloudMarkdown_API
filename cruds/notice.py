@@ -12,7 +12,7 @@ from cruds.auth import *
 
 def getNotice():
     notices = []
-    for notice in Notice.select():
+    for notice in Notice.select().order_by(Notice.post_date.desc()):
         username = User.get(notice.relate_user_id)
         notices.append({"id":notice.id,"relate_user_id":notice.relate_user_id,"username":username.nickname,"title":notice.title,"detail":notice.detail,"post_date":notice.post_date})
 
