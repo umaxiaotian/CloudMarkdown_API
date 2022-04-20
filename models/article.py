@@ -14,6 +14,7 @@ class Article(Model):
     detail = TextField(null=True)
     relate_user_id = IntegerField(null=True)
     good_count = IntegerField(default=0)
+    create_date=DateTimeField(null=True)
     post_date=DateTimeField(null=True)
     is_publish=BooleanField(default=False)
     img = CharField(null=True)

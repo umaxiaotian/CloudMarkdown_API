@@ -72,6 +72,11 @@ async def return_my_article_list(articles: Article = Depends(getMyArticleList)):
     """ユーザーの記事リスト"""
     return articles
 
+@app.get("/user/article/{article_id}")
+async def return_user_article_detail(article: Article = Depends(getUserArticleDetail)):
+    return article
+
+
 #お知らせ
 @app.get("/notice/list/")
 async def getNotice(article: Notice = Depends(getNotice)):
