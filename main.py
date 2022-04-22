@@ -101,6 +101,11 @@ async def getTagList(tags: Article = Depends(getTagList)):
     """タグリスト　使用頻度が多い順"""
     return tags
 
+@app.get("/article/tags/list_all")
+async def getTagList(tags: Article = Depends(getTagList)):
+    """タグリスト　一覧"""
+    return tags
+
 # タグに関連する記事一覧を取得する
 @app.get("/article/tag/{tag_id}")
 async def getTagList(article_list: Article = Depends(getRelateTagArticleList)):

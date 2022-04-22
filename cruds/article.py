@@ -65,6 +65,16 @@ def getTagList():
             {"id": tag.tag_id.id, "tag_name": tag.tag_id.tag_name, "img": tag.tag_id.img, "post_count": tag.count})
 
     return relate_tags
+# タグリスト一覧を取得する
+
+
+def getTagList():
+    relate_tags = []
+    for tag in Tags.select():
+        relate_tags.append(
+            {"id": tag.id, "tag_name": tag.tag_name, "img": tag.img})
+
+    return relate_tags
 
 # タグに関連する記事一覧を取得する
 
