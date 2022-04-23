@@ -1,13 +1,16 @@
 import uvicorn
 from fastapi import Depends, FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
-
+import shutil
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from cruds.auth import *
 from cruds.article import *
 from cruds.notice import *
+import datetime
+import hashlib
+import os
 
 app = FastAPI()
 
@@ -43,9 +46,6 @@ async def main(file_name):
     return FileResponse("./extra/"+file_name)
 
 
-@app.post("/files/")
-async def create_file(file: bytes = File(...)):
-    return {"file_size": len(file)}
 
 
 
@@ -61,6 +61,26 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
 async def refresh_token(current_user: User = Depends(get_current_user_with_refresh_token)):
     """リフレッシュトークンでトークンを再取得"""
     return create_tokens(current_user.id)
+
+
+@app.post('/uploadfile/')
+def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_current_user)):
+    #pathh = filename, ext = 拡張子
+    file_name, ext = os.path.splitext(upload_file.filename)
+    # MD5のハッシュ値
+    hs = hashlib.md5(file_name.encode()).hexdigest()
+    filename = hs+ext
+
+    path = './extra/'+filename
+    if(os.path.exists(path) == False):
+        print(path)
+        with open(path, 'w+b') as buffer:
+            shutil.copyfileobj(upload_file.file, buffer)
+    return {
+        'filename': filename,
+        'type': upload_file.content_type
+    }
+
 
 
 @app.get("/user/me/", response_model=User)
