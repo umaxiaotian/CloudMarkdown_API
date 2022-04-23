@@ -68,7 +68,7 @@ def getTagList():
 # タグリスト一覧を取得する
 
 
-def getTagList():
+def getTagListAll():
     relate_tags = []
     for tag in Tags.select():
         relate_tags.append(

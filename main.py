@@ -1,6 +1,7 @@
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
+
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -40,6 +41,13 @@ class User(BaseModel):
 async def main(file_name):
     """アップロードされたファイルを参照する"""
     return FileResponse("./extra/"+file_name)
+
+
+@app.post("/files/")
+async def create_file(file: bytes = File(...)):
+    return {"file_size": len(file)}
+
+
 
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
@@ -102,19 +110,19 @@ async def getTagList(tags: Article = Depends(getTagList)):
     return tags
 
 @app.get("/article/tags/list_all")
-async def getTagList(tags: Article = Depends(getTagList)):
+async def getTagListAll(tags: Article = Depends(getTagListAll)):
     """タグリスト　一覧"""
     return tags
 
 # タグに関連する記事一覧を取得する
 @app.get("/article/tag/{tag_id}")
-async def getTagList(article_list: Article = Depends(getRelateTagArticleList)):
+async def getRelateTagArticleList(article_list: Article = Depends(getRelateTagArticleList)):
     """タグに関連する記事一覧を取得"""
     return article_list
 
 # タグidからタグ名を取得
 @app.get("/tag/name/{tag_id}")
-async def getTagList(tag_name: Article = Depends(getTagName)):
+async def getTagName(tag_name: Article = Depends(getTagName)):
     """タグIDから取得"""
     return tag_name
 
