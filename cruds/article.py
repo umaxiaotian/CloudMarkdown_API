@@ -1,8 +1,9 @@
 import array
+import datetime
+from fastapi import Depends, Form
 from peewee import *
 from peewee import fn
 from ast import dump
-from multiprocessing.dummy import Array
 from pickle import TRUE
 from click import echo
 from models.article import Article
@@ -10,8 +11,22 @@ from models.user import User
 from models.tags import Tags
 from models.relate_tags import Relate_Tags
 from cruds.auth import *
-
+import json
 # 一般ユーザー　記事リスト取得
+def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: str = Form(...),define_editor_text: str = Form(...),user_id: User = Depends(get_current_user)):
+    dt_now = datetime.now()
+    if(define_editor_text == 'null'):
+        define_editor_text=''
+    if(filename == 'null'):
+        filename="default.jpg"
+    new_article_id = Article.insert(title=title, detail=define_editor_text,img=filename,relate_user_id=user_id,create_date=dt_now).execute()
+    if(selection_tag != 'null'):
+        for tag in json.loads(selection_tag):
+            tag_id = Tags.select().where(Tags.tag_name==tag).get()
+            print(tag_id)
+            Relate_Tags.insert(article_id=new_article_id,tag_id=tag_id).execute()
+
+    return new_article_id
 
 
 def getArticleList():

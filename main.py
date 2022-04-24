@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import Depends, FastAPI, File, UploadFile
+from fastapi import Depends, FastAPI, File, UploadFile, Form
 from fastapi.responses import FileResponse
 import shutil
 from fastapi.security import OAuth2PasswordRequestForm
@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from cruds.auth import *
 from cruds.article import *
 from cruds.notice import *
-import datetime
 import hashlib
 import os
 
@@ -81,6 +80,13 @@ def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_
         'type': upload_file.content_type
     }
 
+@app.post("/post_article/")
+async def post_article(articles: Article = Depends(postArticle)):
+   return articles
+
+
+    # user = authenticate(form.username, form.password)
+    # return create_tokens(user.id)
 
 
 @app.get("/user/me/", response_model=User)
