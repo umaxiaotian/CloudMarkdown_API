@@ -87,9 +87,18 @@ async def post_article(articles: Article = Depends(postArticle)):
 @app.put("/update_article/{article_id}")
 async def post_article(articles: Article = Depends(updateArticle)):
    return articles
-    # user = authenticate(form.username, form.password)
-    # return create_tokens(user.id)
 
+@app.put("/user/article/publish/{article_id}")
+async def post_article(articles: Article = Depends(publishArticle)):
+   return articles
+
+@app.put("/user/article/dispublish/{article_id}")
+async def post_article(articles: Article = Depends(disPublishArticle)):
+   return articles
+
+@app.delete("/user/article/delete/{article_id}")
+async def post_article(articles: Article = Depends(deleteArticle)):
+   return articles
 
 @app.get("/user/me/", response_model=User)
 async def read_users_me(user: User = Depends(get_current_user)):

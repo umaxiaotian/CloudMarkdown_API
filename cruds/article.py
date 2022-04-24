@@ -34,7 +34,7 @@ def updateArticle(article_id,title: str = Form(...),filename: str = Form(...),se
         define_editor_text=''
     if(filename == 'null'):
         filename="default.jpg"
-    update_id = Article.update(title=title, detail=define_editor_text,img=filename,relate_user_id=user_id,create_date=dt_now).where(Article.id == article_id).execute()
+    update_id = Article.update(title=title, detail=define_editor_text,img=filename,relate_user_id=user_id,create_date=dt_now).where(Article.id == article_id,Article.relate_user_id ==user_id).execute()
     if(selection_tag != 'null'):
         #一度すべてのタグを削除
         Relate_Tags.delete().where(Relate_Tags.article_id == article_id).execute()
@@ -44,6 +44,25 @@ def updateArticle(article_id,title: str = Form(...),filename: str = Form(...),se
             Relate_Tags.insert(article_id=article_id,tag_id=tag_id).execute()
 
     return update_id
+
+def publishArticle(article_id,user_id: User = Depends(get_current_user)):
+    dt_now = datetime.now()
+    update_id = Article.update(is_publish=1,post_date=dt_now,create_date=dt_now).where(Article.id == article_id,Article.relate_user_id ==user_id).execute()
+
+    return update_id
+
+def disPublishArticle(article_id,user_id: User = Depends(get_current_user)):
+    dt_now = datetime.now()
+    update_id = Article.update(is_publish=0,post_date=dt_now,create_date=dt_now).where(Article.id == article_id,Article.relate_user_id ==user_id).execute()
+
+    return update_id
+
+def deleteArticle(article_id,user_id: User = Depends(get_current_user)):
+    Relate_Tags.delete().where(Relate_Tags.article_id == article_id).execute()
+    update_id = Article.delete().where(Article.id == article_id,Article.relate_user_id ==user_id).execute()
+
+    return update_id
+
 
 
 def getArticleList():
@@ -158,7 +177,7 @@ def getUserArticle(user_id: int):
 def getMyArticleList(user_id: User = Depends(get_current_user)):
     query = Article.select().get()
     articles = []
-    for article in query.select().where(Article.relate_user_id == user_id).order_by(Article.create_date.desc()):
+    for article in query.select().where(Article.relate_user_id == user_id).order_by(Article.id.desc()):
         tags = []
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
