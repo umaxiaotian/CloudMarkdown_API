@@ -84,7 +84,9 @@ def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_
 async def post_article(articles: Article = Depends(postArticle)):
    return articles
 
-
+@app.put("/update_article/{article_id}")
+async def post_article(articles: Article = Depends(updateArticle)):
+   return articles
     # user = authenticate(form.username, form.password)
     # return create_tokens(user.id)
 

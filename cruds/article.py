@@ -28,6 +28,23 @@ def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: 
 
     return new_article_id
 
+def updateArticle(article_id,title: str = Form(...),filename: str = Form(...),selection_tag: str = Form(...),define_editor_text: str = Form(...),user_id: User = Depends(get_current_user)):
+    dt_now = datetime.now()
+    if(define_editor_text == 'null'):
+        define_editor_text=''
+    if(filename == 'null'):
+        filename="default.jpg"
+    update_id = Article.update(title=title, detail=define_editor_text,img=filename,relate_user_id=user_id,create_date=dt_now).where(Article.id == article_id).execute()
+    if(selection_tag != 'null'):
+        #一度すべてのタグを削除
+        Relate_Tags.delete().where(Relate_Tags.article_id == article_id).execute()
+        #タグの書き込み
+        for tag in json.loads(selection_tag):
+            tag_id = Tags.select().where(Tags.tag_name==tag).get()
+            Relate_Tags.insert(article_id=article_id,tag_id=tag_id).execute()
+
+    return update_id
+
 
 def getArticleList():
     # 記事情報を取得
