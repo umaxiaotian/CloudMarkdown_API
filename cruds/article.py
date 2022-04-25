@@ -58,6 +58,7 @@ def disPublishArticle(article_id,user_id: User = Depends(get_current_user)):
 
 def deleteArticle(article_id,user_id: User = Depends(get_current_user)):
     Relate_Tags.delete().where(Relate_Tags.article_id == article_id).execute()
+    Relate_Good_Count.delete().where(Relate_Good_Count.article_id == article_id).execute()
     update_id = Article.delete().where(Article.id == article_id,Article.relate_user_id ==user_id).execute()
 
     return update_id
@@ -73,9 +74,11 @@ def getArticleList():
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
+        count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
+        print(count)
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append(
-            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
+            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": count,  "post_date": article.post_date})
     return articles
 
 # 一般ユーザー　記事内容取得
@@ -85,24 +88,26 @@ def getArticleDetail(article_id: int):
     article = Article.select().where(Article.is_publish == TRUE,
                                      Article.id == article_id).get()
     relate_user_name = User.get(article.relate_user_id).nickname
+    count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
     tags = []
     # 関連するタグを取得
     for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
         tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
-    return {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "post_date": article.post_date}
+    return {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": count, "post_date": article.post_date}
 
 
 def searchArticleList(search_text: str):
     # 検索記事内容を取得
     articles = []
     for article in Article.select().where(Article.is_publish == TRUE, Article.title.contains(search_text)).order_by(Article.good_count.desc()):
+        count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
         tags = []
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append(
-            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
+            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": count,  "post_date": article.post_date})
     return articles
 
 # タグリスト一覧を取得する
@@ -110,7 +115,8 @@ def searchArticleList(search_text: str):
 
 def getTagList():
     relate_tags = []
-    for tag in Relate_Tags.select(Tags, fn.Count(Relate_Tags.tag_id)).join(Tags).group_by(Tags).where(Relate_Tags.tag_id == Tags.id).order_by(fn.Count(Relate_Tags.tag_id).desc()):
+    for tag in Relate_Tags.select(Tags, fn.Count(Relate_Tags.tag_id)).join(Tags).join(Article,on=(Relate_Tags.article_id == Article.id)).group_by(Tags).where(Relate_Tags.tag_id == Tags.id,Article.is_publish == True).order_by(fn.Count(Relate_Tags.tag_id).desc()).limit(10):
+        print(tag)
         relate_tags.append(
             {"id": tag.tag_id.id, "tag_name": tag.tag_id.tag_name, "img": tag.tag_id.img, "post_count": tag.count})
 
@@ -132,12 +138,13 @@ def getTagListAll():
 def getRelateTagArticleList(tag_id: int):
     articles = []
     for article in Article.select().join(Relate_Tags).where(Relate_Tags.article_id == Article.id, Relate_Tags.tag_id == tag_id, Article.is_publish == TRUE):
+        count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
         tags = []
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append({"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name,
-                        "tags": tags, "title": article.title, "good_count": article.good_count,  "post_date": article.post_date})
+                        "tags": tags, "title": article.title, "good_count": count,  "post_date": article.post_date})
     return articles
 
 # タグIDからタグ名などを取得
@@ -159,13 +166,14 @@ def getUserArticle(user_id: int):
     query = Article.select().get()
     articles = []
     for article in query.select().where(Article.relate_user_id == user_id, Article.is_publish == TRUE).order_by(Article.post_date.desc()):
+        count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
         tags = []
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append(
-            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title,  "good_count": article.good_count, "post_date": article.post_date})
+            {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title,  "good_count": count, "post_date": article.post_date})
 
     return articles
 
@@ -177,13 +185,14 @@ def getMyArticleList(user_id: User = Depends(get_current_user)):
     query = Article.select().get()
     articles = []
     for article in query.select().where(Article.relate_user_id == user_id).order_by(Article.id.desc()):
+        count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
         tags = []
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append(
-            {"id": article.id, "relate_user": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": article.good_count, "is_publish": article.is_publish, "post_date": article.post_date, "create_date": article.create_date})
+            {"id": article.id, "relate_user": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": count, "is_publish": article.is_publish, "post_date": article.post_date, "create_date": article.create_date})
 
     return articles
 
@@ -192,9 +201,10 @@ def getMyArticleList(user_id: User = Depends(get_current_user)):
 
 def getUserArticleDetail(article_id: int, user_id: User = Depends(get_current_user)):
     article = Article.select().where(Article.id == article_id).get()
+    count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
     relate_user_name = User.get(article.relate_user_id).nickname
     tags = []
     # 関連するタグを取得
     for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
         tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
-    return {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": article.good_count, "is_publish": article.is_publish, "post_date": article.post_date}
+    return {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "detail": article.detail, "good_count": count, "is_publish": article.is_publish, "post_date": article.post_date}
