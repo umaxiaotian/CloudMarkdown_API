@@ -4,7 +4,7 @@ db = PostgresqlDatabase(
     'Cloudmarkdown',
     user='Cloudmarkdown',
     password='Cloudmarkdown',
-    host='192.168.11.13',
+    host='localhost',
     autocommit=True, 
     autorollback=True)
 
@@ -24,5 +24,5 @@ db.create_tables([User])
 
 # ユーザーデータ挿入
 # User.create(name='tanaka', password='secret_tanaka')
-# User.create(name='kobayashi', password='secret_kobayashi')
+# User.create(name='test1', nickname = 'テストユーザー１',password='test123',email='test1',avater='default.jpg')
 

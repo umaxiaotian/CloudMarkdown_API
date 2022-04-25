@@ -6,7 +6,7 @@ db = PostgresqlDatabase(
     'Cloudmarkdown',
     user='Cloudmarkdown',
     password='Cloudmarkdown',
-    host='192.168.11.13',
+    host='localhost',
     autocommit=True, 
     autorollback=True)
 class Relate_Good_Count(Model):
