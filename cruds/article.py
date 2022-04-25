@@ -27,6 +27,21 @@ def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: 
 
     return new_article_id
 
+def addGoodCount(article_id,user_id: User = Depends(get_current_user)):
+    is_good=Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.user_id == user_id).get().count
+    if(is_good == 0):
+        Relate_Good_Count.insert(article_id=article_id,user_id=user_id).execute()
+        return {'detail':'Finished_Good'}
+    else:
+        return {'detail':'Already_Good'}
+
+def removeGoodCount(article_id,user_id: User = Depends(get_current_user)):
+    exec = Relate_Good_Count.delete().where(Relate_Good_Count.article_id == article_id,Relate_Good_Count.user_id == user_id).execute()
+    if(exec == 1):
+        return {'detail':'Finished_Remove'}
+    else:
+        return {'detail':'Remove_Missing'}
+  
 def updateArticle(article_id,title: str = Form(...),filename: str = Form(...),selection_tag: str = Form(...),define_editor_text: str = Form(...),user_id: User = Depends(get_current_user)):
     dt_now = datetime.now()
     if(define_editor_text == 'null'):

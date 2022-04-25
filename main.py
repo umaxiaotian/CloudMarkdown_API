@@ -96,6 +96,14 @@ async def post_article(articles: Article = Depends(publishArticle)):
 async def post_article(articles: Article = Depends(disPublishArticle)):
    return articles
 
+@app.put("/user/article/good_add/{article_id}")
+async def post_article(articles: Article = Depends(addGoodCount)):
+   return articles
+
+@app.delete("/user/article/good_remove/{article_id}")
+async def post_article(articles: Article = Depends(removeGoodCount)):
+   return articles
+
 @app.delete("/user/article/delete/{article_id}")
 async def post_article(articles: Article = Depends(deleteArticle)):
    return articles
