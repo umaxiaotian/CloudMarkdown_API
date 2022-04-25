@@ -1,17 +1,16 @@
-import array
 import datetime
 from fastapi import Depends, Form
 from peewee import *
 from peewee import fn
-from ast import dump
 from pickle import TRUE
-from click import echo
 from models.article import Article
 from models.user import User
 from models.tags import Tags
 from models.relate_tags import Relate_Tags
+from models.relate_good_count import Relate_Good_Count
 from cruds.auth import *
 import json
+
 # 一般ユーザー　記事リスト取得
 def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: str = Form(...),define_editor_text: str = Form(...),user_id: User = Depends(get_current_user)):
     dt_now = datetime.now()
@@ -67,9 +66,9 @@ def deleteArticle(article_id,user_id: User = Depends(get_current_user)):
 
 def getArticleList():
     # 記事情報を取得
-    query = Article.select().get()
+
     articles = []
-    for article in query.select().where(Article.is_publish == TRUE).order_by(Article.good_count.desc()).limit(10):
+    for article in Article.select(Article).join(Relate_Good_Count).where(Article.is_publish == TRUE).group_by(Article).order_by(fn.Count(Relate_Good_Count.article_id).desc()).limit(10):
         tags = []
         # 関連するタグを取得
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
