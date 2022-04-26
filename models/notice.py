@@ -4,7 +4,7 @@ db = PostgresqlDatabase(
     'Cloudmarkdown',
     user='Cloudmarkdown',
     password='Cloudmarkdown',
-    host='localhost',
+    host='Postgresql',
     autocommit=True, 
     autorollback=True)
 

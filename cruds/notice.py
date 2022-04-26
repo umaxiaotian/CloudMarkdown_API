@@ -1,9 +1,5 @@
-import array
 from peewee import *
 from peewee import fn
-from ast import dump
-from multiprocessing.dummy import Array
-from pickle import TRUE
 from models.user import User
 from models.notice import Notice
 from cruds.auth import *
