@@ -24,5 +24,5 @@ db.create_tables([User])
 
 # ユーザーデータ挿入
 # User.create(name='tanaka', password='secret_tanaka')
-# User.create(name='test1', nickname = 'テストユーザー１',password='test123',email='test1',avater='default.jpg')
+User.create(name='test1', nickname = 'テストユーザー１',password='test123',email='test1',avater='default.jpg')
 
