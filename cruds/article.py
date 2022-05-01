@@ -28,7 +28,7 @@ def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: 
     return new_article_id
 
 def addGoodCount(article_id,user_id: User = Depends(get_current_user)):
-    is_good=Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.user_id == user_id).get().count
+    is_good=Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article_id,Relate_Good_Count.user_id == user_id).get().count
     if(is_good == 0):
         Relate_Good_Count.insert(article_id=article_id,user_id=user_id).execute()
         return {'detail':'Finished_Good'}
