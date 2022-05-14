@@ -1,3 +1,4 @@
+from ast import And
 from fastapi import Depends, Form ,HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
@@ -88,10 +89,15 @@ async def get_current_user_with_refresh_token(token: str = Depends(oauth2_scheme
 def updateUserProfile(name: str = Form(...),email: str = Form(...),nickname: str = Form(...),avater: str = Form(...),user_id: User = Depends(get_current_user)):
     if(avater != 'null'):
         User.update(avater=avater).where(User.id == user_id).execute()
-    result = User.select().where(User.nickname==nickname).get()
-    print(result)
+
+    result = User.get_or_none(User.name==name)
     if(result != user_id):
+        raise HTTPException(status_code=401, detail=f'すでにこのユーザー名は使われています。')
+
+    result = User.get_or_none(User.nickname==nickname)
+    if(result != None and result != user_id):
         raise HTTPException(status_code=401, detail=f'すでにこのニックネームは使われています。')
+
     update_id = User.update(name=name, email=email,nickname=nickname).where(User.id == user_id).execute()
     
     print(update_id)
