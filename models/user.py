@@ -11,7 +11,7 @@ db = PostgresqlDatabase(
 class User(Model):
     id = AutoField(primary_key=True)
     name = CharField(100)
-    nickname = CharField(100)
+    nickname = CharField(unique=True)
     email = CharField(100)
     password = CharField(100)
     refresh_token = TextField(null=True)
@@ -24,5 +24,5 @@ db.create_tables([User])
 
 # ユーザーデータ挿入
 # User.create(name='tanaka', password='secret_tanaka')
-User.create(name='test1', nickname = 'テストユーザー１',password='test123',email='test1',avater='default.jpg')
+# User.create(name='test1', nickname = 'テストユーザー１',password='test123',email='test1',avater='default.jpg')
 

@@ -86,11 +86,13 @@ async def get_current_user_with_refresh_token(token: str = Depends(oauth2_scheme
     return get_current_user_from_token(token, 'refresh_token')
 
 def updateUserProfile(name: str = Form(...),email: str = Form(...),nickname: str = Form(...),avater: str = Form(...),user_id: User = Depends(get_current_user)):
-
-
     if(avater != 'null'):
-        # print("FREE")
         User.update(avater=avater).where(User.id == user_id).execute()
+    result = User.select().where(User.nickname==nickname).get()
+    print(result)
+    if(result != user_id):
+        raise HTTPException(status_code=401, detail=f'すでにこのニックネームは使われています。')
     update_id = User.update(name=name, email=email,nickname=nickname).where(User.id == user_id).execute()
+    
     print(update_id)
     return update_id
