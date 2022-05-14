@@ -10,7 +10,7 @@ db = PostgresqlDatabase(
 
 class User(Model):
     id = AutoField(primary_key=True)
-    name = CharField(100)
+    name = CharField(unique=True)
     nickname = CharField(unique=True)
     email = CharField(100)
     password = CharField(100)

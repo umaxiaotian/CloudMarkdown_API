@@ -1,5 +1,4 @@
-from ast import And
-from fastapi import Depends, Form ,HTTPException
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
@@ -11,7 +10,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def authenticate(name: str, password: str):
     """パスワード認証し、userを返却"""
-    user = User.get(name=name)
+    user = User.get_or_none(name=name)
+    if user is None:
+        raise HTTPException(status_code=401, detail='ユーザー名が存在しない')
     if user.password != password:
         raise HTTPException(status_code=401, detail='パスワード不一致')
     return user
@@ -68,7 +69,7 @@ def get_current_user_from_token(token: str, token_type: str):
 
     # リフレッシュトークンの場合、受け取ったものとDBに保存されているものが一致するか確認
     if token_type == 'refresh_token' and user.refresh_token != token:
-        # print(user.refresh_token, '¥n', token)
+        print(user.refresh_token, '¥n', token)
         raise HTTPException(status_code=401, detail='リフレッシュトークン不一致')
 
     return user
@@ -85,20 +86,3 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def get_current_user_with_refresh_token(token: str = Depends(oauth2_scheme)):
     """リフレッシュトークンからログイン中のユーザーを取得"""
     return get_current_user_from_token(token, 'refresh_token')
-
-def updateUserProfile(name: str = Form(...),email: str = Form(...),nickname: str = Form(...),avater: str = Form(...),user_id: User = Depends(get_current_user)):
-    if(avater != 'null'):
-        User.update(avater=avater).where(User.id == user_id).execute()
-
-    result = User.get_or_none(User.name==name)
-    if(result != user_id):
-        raise HTTPException(status_code=401, detail=f'すでにこのユーザー名は使われています。')
-
-    result = User.get_or_none(User.nickname==nickname)
-    if(result != None and result != user_id):
-        raise HTTPException(status_code=401, detail=f'すでにこのニックネームは使われています。')
-
-    update_id = User.update(name=name, email=email,nickname=nickname).where(User.id == user_id).execute()
-    
-    print(update_id)
-    return update_id

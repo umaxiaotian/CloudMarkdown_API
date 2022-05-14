@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from cruds.auth import *
 from cruds.article import *
 from cruds.notice import *
+from cruds.user import *
 import hashlib
 import os
 
@@ -44,26 +45,20 @@ async def main(file_name):
     """アップロードされたファイルを参照する"""
     return FileResponse("./extra/"+file_name)
 
-
-
-
-
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """トークン発行"""
     user = authenticate(form.username, form.password)
     return create_tokens(user.id)
 
-@app.put("/update_user_profile/")
-async def updateUserProfile(result: User = Depends(updateUserProfile)):
-   return result
-
-
 @app.get("/refresh_token/", response_model=Token)
 async def refresh_token(current_user: User = Depends(get_current_user_with_refresh_token)):
     """リフレッシュトークンでトークンを再取得"""
     return create_tokens(current_user.id)
 
+@app.put("/update_user_profile/")
+async def updateUserProfile(result: User = Depends(updateUserProfile)):
+   return result
 
 @app.post('/uploadfile/')
 def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_current_user)):
