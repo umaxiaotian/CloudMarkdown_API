@@ -60,6 +60,11 @@ async def refresh_token(current_user: User = Depends(get_current_user_with_refre
 async def updateUserProfile(result: User = Depends(updateUserProfile)):
    return result
 
+@app.put("/update_user_password/")
+async def updateUserPassword(result: User = Depends(updateUserPassword)):
+   return result
+
+
 @app.post('/uploadfile/')
 def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_current_user)):
     #pathh = filename, ext = 拡張子
