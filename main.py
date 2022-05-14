@@ -51,9 +51,12 @@ async def main(file_name):
 @app.post("/token", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     """トークン発行"""
-    print(form.username)
     user = authenticate(form.username, form.password)
     return create_tokens(user.id)
+
+@app.put("/update_user_profile/")
+async def updateUserProfile(result: User = Depends(updateUserProfile)):
+   return result
 
 
 @app.get("/refresh_token/", response_model=Token)
@@ -72,7 +75,6 @@ def get_uploadfile(upload_file: UploadFile = File(...),user: User = Depends(get_
 
     path = './extra/'+filename
     if(os.path.exists(path) == False):
-        print(path)
         with open(path, 'w+b') as buffer:
             shutil.copyfileobj(upload_file.file, buffer)
     return {
@@ -186,5 +188,3 @@ async def return_article_detail(article: Article = Depends(getUserArticle)):
     return article
 
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)

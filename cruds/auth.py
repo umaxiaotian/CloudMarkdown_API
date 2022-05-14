@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, Form ,HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
@@ -67,7 +67,7 @@ def get_current_user_from_token(token: str, token_type: str):
 
     # リフレッシュトークンの場合、受け取ったものとDBに保存されているものが一致するか確認
     if token_type == 'refresh_token' and user.refresh_token != token:
-        print(user.refresh_token, '¥n', token)
+        # print(user.refresh_token, '¥n', token)
         raise HTTPException(status_code=401, detail='リフレッシュトークン不一致')
 
     return user
@@ -84,3 +84,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def get_current_user_with_refresh_token(token: str = Depends(oauth2_scheme)):
     """リフレッシュトークンからログイン中のユーザーを取得"""
     return get_current_user_from_token(token, 'refresh_token')
+
+def updateUserProfile(name: str = Form(...),email: str = Form(...),nickname: str = Form(...),avater: str = Form(...),user_id: User = Depends(get_current_user)):
+
+
+    if(avater != 'null'):
+        # print("FREE")
+        User.update(avater=avater).where(User.id == user_id).execute()
+    update_id = User.update(name=name, email=email,nickname=nickname).where(User.id == user_id).execute()
+    print(update_id)
+    return update_id

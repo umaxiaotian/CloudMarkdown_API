@@ -22,7 +22,6 @@ def postArticle(title: str = Form(...),filename: str = Form(...),selection_tag: 
     if(selection_tag != 'null'):
         for tag in json.loads(selection_tag):
             tag_id = Tags.select().where(Tags.tag_name==tag).get()
-            print(tag_id)
             Relate_Tags.insert(article_id=new_article_id,tag_id=tag_id).execute()
 
     return new_article_id
@@ -90,7 +89,6 @@ def getArticleList():
         for tag in Tags.select().join(Relate_Tags).where(Tags.id == Relate_Tags.tag_id, Relate_Tags.article_id == article.id):
             tags.append({"tag_id": tag.id, "tag_name": tag.tag_name})
         count= Relate_Good_Count.select(fn.Count(Relate_Good_Count.article_id)).where(Relate_Good_Count.article_id == article.id).get().count
-        print(count)
         relate_user_name = User.get(article.relate_user_id).nickname
         articles.append(
             {"id": article.id, "relate_user_id": article.relate_user_id, "img": article.img, "relate_user_name": relate_user_name, "tags": tags, "title": article.title, "good_count": count,  "post_date": article.post_date})
@@ -131,7 +129,6 @@ def searchArticleList(search_text: str):
 def getTagList():
     relate_tags = []
     for tag in Relate_Tags.select(Tags, fn.Count(Relate_Tags.tag_id)).join(Tags).join(Article,on=(Relate_Tags.article_id == Article.id)).group_by(Tags).where(Relate_Tags.tag_id == Tags.id,Article.is_publish == True).order_by(fn.Count(Relate_Tags.tag_id).desc()).limit(10):
-        print(tag)
         relate_tags.append(
             {"id": tag.tag_id.id, "tag_name": tag.tag_id.tag_name, "img": tag.tag_id.img, "post_count": tag.count})
 
