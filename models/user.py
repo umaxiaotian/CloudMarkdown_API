@@ -12,7 +12,7 @@ class User(Model):
     id = AutoField(primary_key=True)
     name = CharField(unique=True)
     nickname = CharField(unique=True)
-    email = CharField(100)
+    email = CharField(unique=True)
     password = CharField(100)
     refresh_token = TextField(null=True)
     is_admin=BooleanField(default=False)

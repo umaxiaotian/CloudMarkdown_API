@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException,Form
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta
 from jose import jwt
@@ -16,6 +16,7 @@ def authenticate(name: str, password: str):
     if user.password != password:
         raise HTTPException(status_code=401, detail='パスワード不一致')
     return user
+
 
 
 def create_tokens(user_id: int):
@@ -44,6 +45,20 @@ def create_tokens(user_id: int):
 
     return {'access_token': access_token, 'refresh_token': refresh_token, 'token_type': 'bearer'}
 
+def register(username: str= Form(...), password: str= Form(...) , nickname:str = Form(...), email:str= Form(...)):
+    """新規登録を行い、userを返却"""
+    result = User.get_or_none(User.nickname==nickname)
+    if(result != None):
+        raise HTTPException(status_code=401, detail=f'すでにこのニックネームは使われています。')
+    result = User.get_or_none(User.email==email)
+    if(result != None):
+        raise HTTPException(status_code=401, detail=f'すでにこのメールアドレスは使われています。')
+    result = User.get_or_none(User.name==username)
+    if(result != None):
+        raise HTTPException(status_code=401, detail=f'すでにこのユーザー名は使われています。')
+    #インサート
+    register_user = User.create(name=username, password=password,nickname=nickname,email=email)
+    return register_user
 
 def get_current_user_from_token(token: str, token_type: str):
     """tokenからユーザーを取得"""
